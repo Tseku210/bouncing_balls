@@ -12,9 +12,10 @@
 #include <string.h>
 
 #define PI 3.14159f
-#define LOW -10
-#define HIGH 10
-#define n 7 // ardaas ni neg chigleld murgulduhiig shiid
+#define LOW -20
+#define HIGH 20
+#define n 11
+// ardaas ni neg chigleld murgulduhiig shiid
 
 #define defaultS 1
 
@@ -65,11 +66,8 @@ void drawCircle(Ball *);
 // Ball *balls = (Ball *) malloc(sizeof(Ball) * n);
 Ball balls[n];
 Event e = {0, NULL, NULL, 0, 0};
-Node pq[10000];
-GLdouble dt = 0.1;
-Ball *tmp1;
-Ball *tmp2;
-
+Node pq[100000];
+GLdouble dt = 0.01;
 int size = 0;
 
 void swap(Node *a, Node *b)
@@ -79,7 +77,6 @@ void swap(Node *a, Node *b)
   *a = temp;
 }
 
-// Function to heapify the tree
 void heapify(Node array[], int size, int i)
 {
   if (size == 1)
@@ -88,7 +85,6 @@ void heapify(Node array[], int size, int i)
   }
   else
   {
-    // Find the largest among root, left child and right child
     int largest = i;
     int l = 2 * i + 1;
     int r = 2 * i + 2;
@@ -97,7 +93,6 @@ void heapify(Node array[], int size, int i)
     if (r < size && array[r].e.time < array[largest].e.time)
       largest = r;
 
-    // Swap and continue heapifying if root is not largest
     if (largest != i)
     {
       swap(&array[i], &array[largest]);
@@ -106,7 +101,6 @@ void heapify(Node array[], int size, int i)
   }
 }
 
-// Function to insert an element into the tree
 void insert(Node array[], Event e)
 {
   if (size == 0)
@@ -125,7 +119,6 @@ void insert(Node array[], Event e)
   }
 }
 
-// Function to delete an element from the tree
 Event deleteRoot(Node array[])
 {
   Event e = array[0].e;
@@ -138,41 +131,12 @@ Event deleteRoot(Node array[])
   return e;
 }
 
-// Driver code
-// int main() {
-//  int array[10];
-//
-//  insert(array, 3);
-//  insert(array, 4);
-//  insert(array, 9);
-//  insert(array, 5);
-//  insert(array, 2);
-//
-//  printf("Max-Heap array: ");
-//  printArray(array, size);
-//
-//  deleteRoot(array, 4);
-//
-//  printf("After deleting an element: ");
-//
-//  printArray(array, size);
-//}
-//
-// Return the value at head
-// int peek(Node** head)
-//{
-//    return (*head)->data;
-//}
-
 int compareTo(Event *e1, Event *e2)
 {
   return e1->time - e2->time;
 }
 
-// int isValid(Event e1, Event e2) {
-//
-// }
-//  asuudal ened baina !!!
+// asuudal ened baina !!!
 float timeToHit(Ball *ball1, Ball *ball2)
 {
   if (ball1 == ball2)
@@ -196,50 +160,45 @@ float timeToHitVerticalWall(Ball *ball)
   float dt;
   if (ball->speedy < 0)
   {
-    //        dt = (ball->bally - 0 + ball->r - ball->r) / -ball->speedy;
+    //        dt = (ball->bally - 0 + ball->r + ball->r) / -ball->speedy;
+    //        dt = (ball->r - ball->bally) / ball->speedy;
     dt = (ball->bally) / -ball->speedy;
+  }
+  else if (ball->speedy > 0)
+  {
+    dt = (winHeight - ball->bally - ball->r - ball->r) / ball->speedy;
+    //        dt = (winHeight - ball->r - ball->bally) / ball->speedy;
   }
   else
   {
-    dt = (winHeight - ball->bally - ball->r - ball->r) / ball->speedy;
+    return INFINITY;
   }
   return dt;
 }
+
 float timeToHitHorizontalWall(Ball *ball)
 {
   float dt;
   if (ball->speedx < 0)
   {
     //        dt = (ball->ballx - ::dt) / -ball->speedx;
+    //        dt = (ball->r - ball->ballx) / ball->speedx;
     dt = (ball->ballx) / -ball->speedx;
+  }
+  else if (ball->speedx > 0)
+  {
+    //        dt = (winWidth - ball->ballx - ball->r - ball->r) / ball->speedx;
+    dt = (winWidth - ball->r - ball->ballx) / ball->speedx;
   }
   else
   {
-    dt = (winWidth - ball->ballx - ball->r - ball->r) / ball->speedx;
+    return INFINITY;
   }
   return dt;
 }
 
 void bounceOffVerticalWall(Ball *ball)
 {
-  //    float r = ball->r;
-  //    ball->ballx += ball->speedx;
-  //    ball->bally += ball->speedy;
-  //    float randomx = ball->randomx;
-  //    float randomy = ball->randomy;
-  //    if (ball->bally+r > winHeight-r){
-  //        ball->speedy = -ball->speedy;
-  //    } else if (ball->bally+r < r) {
-  //        ball->speedy = -ball->speedy;
-  //    }
-  //    if (ball->ballx+r > winWidth-r) {
-  //        ball->speedx = -ball->speedx;
-  //    } else if (ball->ballx+r < r) {
-  //        ball->speedx = -ball->speedx;
-  //    }
-  //    ball->speedy = -ball->speedy;
-  //    ball->bally = winWidth - ball->r;
-  //    ball->ballx = ball->ballx + ball->speedx * dt;
   printf("\nvertical\n");
   ball->speedy = -ball->speedy;
   if (ball->speedy >= 0)
@@ -255,21 +214,6 @@ void bounceOffVerticalWall(Ball *ball)
 
 void bounceOffHorizontalWall(Ball *ball)
 {
-  //    float r = ball->r;
-  //    ball->ballx += ball->speedx;
-  //    ball->bally += ball->speedy;
-  //    float randomx = ball->randomx;
-  //    float randomy = ball->randomy;
-  //    if (ball->bally+r > winHeight-r){
-  //        ball->speedy = -ball->speedy;
-  //    } else if (ball->bally+r < r) {
-  //        ball->speedy = -ball->speedy;
-  //    }
-  //    if (ball->ballx+r > winWidth-r) {
-  //        ball->speedx = -ball->speedx;
-  //    } else if (ball->ballx+r < r) {
-  //        ball->speedx = -ball->speedx;
-  //    }
   printf("\nhorizontal\n");
   ball->speedx = -ball->speedx;
   if (ball->speedx >= 0)
@@ -286,8 +230,6 @@ void bounceOffHorizontalWall(Ball *ball)
 
 void bounceOff(Ball *ball1, Ball *ball2)
 {
-  tmp1 = ball1;
-  tmp2 = ball2;
   printf("before bounce off");
   if (ball1 == NULL || ball2 == NULL)
     return;
@@ -298,24 +240,14 @@ void bounceOff(Ball *ball1, Ball *ball2)
   double dvdr = dx * dvx + dy * dvy;
   double dist = ball1->r + ball2->r;
   double J = 2 * ball1->mass * ball2->mass * dvdr / ((ball1->mass + ball2->mass) * dist);
-  //    double Jx = J * dx / dist;
-  //    double Jy = J * dy / dist;
+  double Jx = J * dx / dist;
+  double Jy = J * dy / dist;
 
-  //    ball1->speedx += Jx / ball1->mass;
-  //    ball1->speedy += Jy / ball1->mass;
-  //    ball2->speedx -= Jx / ball2->mass;
-  //    ball2->speedy -= Jy / ball2->mass;
+  ball1->speedx += Jx / ball1->mass;
+  ball1->speedy += Jy / ball1->mass;
+  ball2->speedx -= Jx / ball2->mass;
+  ball2->speedy -= Jy / ball2->mass;
 
-  if ((ball1->speedx < 0 && ball2->speedx >= 0) || (ball2->speedx < 0 && ball1->speedx >= 0))
-  {
-    ball1->speedx = -ball1->speedx;
-    ball2->speedx = -ball2->speedx;
-  }
-  else if ((ball1->speedy < 0 && ball2->speedy >= 0) || (ball2->speedy < 0 && ball1->speedy >= 0))
-  {
-    ball1->speedy = -ball1->speedy;
-    ball2->speedy = -ball2->speedy;
-  }
   ball1->count++;
   ball2->count++;
 }
@@ -335,52 +267,36 @@ void predict(Ball *ball)
     e.b = &balls[i];
     e.countA = ball->count;
     e.countB = balls[i].count;
-    insert(pq, e);
+    if (t + dt < INFINITY)
+    {
+      insert(pq, e);
+    }
   }
-  Event e1 = {t + timeToHitVerticalWall(ball), ball, NULL};
-  e1.countA = ball->count;
-  Event e2 = {t + timeToHitHorizontalWall(ball), NULL, ball};
-  e2.countB = ball->count;
-  insert(pq, e1);
-  insert(pq, e2);
+  if (t + timeToHitVerticalWall(ball) < INFINITY)
+  {
+    Event e1 = {t + timeToHitVerticalWall(ball), ball, NULL};
+    e1.countA = ball->count;
+    insert(pq, e1);
+  }
+  if (t + timeToHitHorizontalWall(ball) < INFINITY)
+  {
+    Event e2 = {t + timeToHitHorizontalWall(ball), NULL, ball};
+    e2.countB = ball->count;
+    insert(pq, e2);
+  }
 }
 
 void move(Ball *ball, double dt)
 {
   ball->ballx = ball->ballx + ball->speedx * dt;
   ball->bally = ball->bally + ball->speedy * dt;
-  //    GLfloat rx = ball->ballx;
-  //    GLfloat ry = ball->bally;
-  //    GLfloat vx = ball->speedx;
-  //    GLfloat vy = ball->speedy;
-  //    if ((rx + vx*dt < 0) || (rx + vx*dt > winWidth - ball->r - ball->r)) {
-  //        ball->speedx = -ball->speedx;
-  //    }
-  //    if ((ry + vy*dt < 0) || (ry + vy*dt > winHeight - ball->r - ball->r)) {
-  //        ball->speedy = -ball->speedy;
-  //    }
-  // glutPostRedisplay();
-  //    float r = ball->r;
-  //    ball->ballx += ball->speedx;
-  //    ball->bally += ball->speedy;
-  //    if (ball->bally+r > winHeight-r){
-  //        ball->speedy = -ball->speedy;
-  //    } else if (ball->bally+r < r) {
-  //        ball->speedy = -ball->speedy;
-  //    }
-  //    if (ball->ballx+r > winWidth-r) {
-  //        ball->speedx = -ball->speedx;
-  //    } else if (ball->ballx+r < r) {
-  //        ball->speedx = -ball->speedx;
-  //    }
 }
 
 int isValid(Event *event)
 {
-  if ((event->countA > event->countB || event->countB > event->countA) && isinf(event->time) == 1)
-  {
-    return 0;
-  }
+  //    if ((event->countA > event->countB || event->countB > event->countA) && isinf(event->time) == 1) {
+  //        return 0;
+  //    }
   if (isinf(event->time) == 1)
   {
     return 0;
@@ -409,7 +325,7 @@ int isValid(Event *event)
   }
   else if (event->a && event->b)
   {
-    if (event->countA != event->a->count && event->countB != event->b->count)
+    if (event->countA != event->a->count || event->countB != event->b->count)
     {
       return 0;
     }
@@ -433,21 +349,6 @@ int isValid(Event *event)
   return 0;
 }
 
-bool isEqual(float a, float b)
-{
-
-  // Correct method to compare
-  // floating-point numbers
-  if (abs(a - b) < 1e-9)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
 void simulate(Node pq[], Ball ball[])
 {
   //    Node tmpo = {NULL, NULL};
@@ -461,28 +362,8 @@ void simulate(Node pq[], Ball ball[])
     }
   }
   shouldUpdate = false;
-  //    Event e = {0, NULL, NULL, 0, 0};
-  //    pq = newNode(e);
-  // pq->e != NULL
-  //    t = roundf(t * 100) / 100;
-  //    float ti = roundf(pq->e.time * 100) / 100;
-  //    if (isgreaterequal(t, ti)) {
-  //        Event event;
-  //        event = pop(&pq);
-  //        Ball *a = event.a;
-  //        Ball *b = event.b;
-  //        if (a != NULL && b != NULL) bounceOff(a, b);
-  //        else if (a != NULL && b == NULL) bounceOffVerticalWall(a);
-  //        else if (a == NULL && b != NULL) bounceOffHorizontalWall(b);
-  //        else if (a == NULL && b == NULL) {
-  ////            timer(0);
-  //            glutPostRedisplay();
-  ////            return;
-  //
-  ////            glutSwapBuffers();
-  //        };
-  //    }
-  if (isgreaterequal(t, pq->e.time))
+
+  while (isgreaterequal(t, pq->e.time))
   {
     //        while (isEmpty(&pq) != 0) {
     Event event;
@@ -511,18 +392,6 @@ void simulate(Node pq[], Ball ball[])
     {
       glutPostRedisplay();
       return;
-      //            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      //        //    printf("displaying");
-      //            int i;
-      //
-      //            for (i = 0; i < n; i++) {
-      //                //move(&balls[i], dt);
-      //                drawCircle(&balls[i]);
-      //            }
-      //            glutSwapBuffers();
-      //            simulate(pq, balls);
-      //            Event e = {0, NULL, NULL, 0, 0};
-      //            pq = newNode(e);
     };
     for (i = 0; i < n; i++)
     {
@@ -531,53 +400,13 @@ void simulate(Node pq[], Ball ball[])
 
     predict(a);
     predict(b);
+    glutPostRedisplay();
+    return;
   }
-  else
+  for (i = 0; i < n; i++)
   {
-    for (i = 0; i < n; i++)
-    {
-      move(&balls[i], dt);
-    }
+    move(&balls[i], dt);
   }
-  //    }
-  //    while (isEmpty(&pq) != 0) {
-  //        Event event;
-  //        event = pop(&pq);
-  //        if (isValid(&event) == 0) continue;
-  //        Ball *a = event.a;
-  //        Ball *b = event.b;
-  //
-  ////        t = event.time;
-  //        for (i = 0; i < n; i++) {
-  //            move(&balls[i], dt);
-  //        }
-  //
-  //        if (a != NULL && b != NULL) bounceOff(a, b);
-  //        else if (a != NULL && b == NULL) bounceOffVerticalWall(a);
-  //        else if (a == NULL && b != NULL) bounceOffHorizontalWall(b);
-  //        else if (a == NULL && b == NULL) {
-  //            glutPostRedisplay();
-  //            return;
-  ////            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  ////        //    printf("displaying");
-  ////            int i;
-  ////
-  ////            for (i = 0; i < n; i++) {
-  ////                //move(&balls[i], dt);
-  ////                drawCircle(&balls[i]);
-  ////            }
-  ////            glutSwapBuffers();
-  ////            simulate(pq, balls);
-  ////            Event e = {0, NULL, NULL, 0, 0};
-  ////            pq = newNode(e);
-  //        };
-  //
-  //        predict(a);
-  //        predict(b);
-  //    }
-  //    for (i = 0; i < n; i++) {
-  //        move(&balls[i], dt);
-  //    }
   glutPostRedisplay();
 }
 
@@ -593,7 +422,7 @@ void drawCircle(Ball *ball)
   for (i = 0; i < 50; i++)
   {
     float theta = (2 * PI * i) / 50;
-    glVertex2f(r * cos(theta) + r + xstep, r * sin(theta) + r + ystep);
+    glVertex2f(r * cos(theta) + xstep, r * sin(theta) + ystep);
   }
   glEnd();
 }
@@ -606,9 +435,10 @@ void display(void)
   //    for (i = 0; i < n; i++) {
   //        move(&balls[i], 1);
   //    }
+  //    glutPostRedisplay();
   for (i = 0; i < n; i++)
   {
-    // move(&balls[i], dt);
+    //        move(&balls[i], dt);
     drawCircle(&balls[i]);
   }
   glutSwapBuffers();
@@ -635,6 +465,8 @@ void resize(GLsizei w, GLsizei h)
   }
   glOrtho(0.0f, winWidth, 0.0f, winHeight, 1.0f, -1.0f);
 
+  printf("width: %.2f\n", winWidth);
+  printf("height: %.2f\n", winHeight);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 }
@@ -685,11 +517,15 @@ void setup(void)
     // printf("\nwtf\n");
     Ball ball;
     ball.r = (rand() % 4) + 3;
-    ball.ballx = rand() % 250;
+    //        ball.r = 2;
+    ball.ballx = rand() % 313;
     ball.bally = rand() % 250;
-    ball.speedx = (rand() % (HIGH - LOW + 1)) + LOW;
-    ball.speedy = (rand() % (HIGH - LOW + 1)) + LOW;
-    ball.mass = (rand() % (200 - 150 + 1)) + 150;
+    //        ball.speedx = (rand() % (HIGH - LOW + 1)) + LOW;
+    //        ball.speedy = (rand() % (HIGH - LOW + 1)) + LOW;
+    ball.speedx = 20;
+    ball.speedy = 20;
+    //        ball.mass = (rand() % (5 - 3 + 1)) + 3;
+    ball.mass = 5;
     ball.count = 0;
     ball.red = rand() / (double)RAND_MAX;
     ball.green = rand() / (double)RAND_MAX;
